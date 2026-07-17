@@ -1,5 +1,6 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -19,6 +20,16 @@
             Login As
         </h2>
 
+        <% if ("invalid".equals(request.getParameter("error"))) { %>
+        <div class="mb-4 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl text-sm">Invalid username or password.</div>
+        <% } %>
+        <% if ("role".equals(request.getParameter("error"))) { %>
+        <div class="mb-4 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl text-sm">Wrong role selected for this account.</div>
+        <% } %>
+        <% if ("true".equals(request.getParameter("registered"))) { %>
+        <div class="mb-4 bg-emerald-100 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl text-sm">Registration successful! Please login.</div>
+        <% } %>
+
         <!-- Main Card -->
         <div class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden">
 
@@ -27,44 +38,39 @@
 
                 <div class="flex gap-2">
 
-                    <button
+                    <button type="button"
                             id="doctorBtn"
+                            data-role="Doctor"
                             class="role-btn flex-1 py-2 rounded-lg bg-emerald-500 text-white font-semibold transition">
-
                         Doctor
-
                     </button>
 
-                    <button
+                    <button type="button"
                             id="patientBtn"
+                            data-role="Patient"
                             class="role-btn flex-1 py-2 rounded-lg text-slate-600 transition">
-
                         Patient
-
                     </button>
 
-                    <button
+                    <button type="button"
                             id="labBtn"
-                            class="role-btn flex-1 py-2 rounded-lg text-slate-600  transition">
-
+                            data-role="Lab"
+                            class="role-btn flex-1 py-2 rounded-lg text-slate-600 transition">
                         Lab
-
                     </button>
 
-                    <button
+                    <button type="button"
                             id="receptionBtn"
-                            class="role-btn flex-1 py-2 rounded-lg text-slate-600  transition">
-
+                            data-role="Reception"
+                            class="role-btn flex-1 py-2 rounded-lg text-slate-600 transition">
                         Reception
-
                     </button>
 
-                    <button
+                    <button type="button"
                             id="pharmacistBtn"
-                            class="role-btn flex-1 py-2 rounded-lg bg-emerald-500 text-white font-semibold transition">
-
+                            data-role="Pharmacy"
+                            class="role-btn flex-1 py-2 rounded-lg text-slate-600 transition">
                         Pharmacy
-
                     </button>
 
 
@@ -75,9 +81,13 @@
             <!-- Login Form -->
             <div class="p-5">
 
-                <form
-                        id="loginForm"
-                        class="space-y-5">
+                <form id="loginForm"
+                      action="${pageContext.request.contextPath}/auth"
+                      method="post"
+                      class="space-y-5">
+
+                    <input type="hidden" name="action" value="login">
+                    <input type="hidden" name="role" id="role" value="Doctor">
 
                     <!-- Username -->
                     <div>
@@ -94,6 +104,7 @@
                                 id="username"
                                 name="username"
                                 type="text"
+                                required
                                 placeholder="Enter username"
                                 class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 transition">
 
@@ -116,6 +127,7 @@
                                     id="password"
                                     name="password"
                                     type="password"
+                                    required
                                     placeholder="Enter password"
                                     class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 pr-12 outline-none focus:border-emerald-500 transition">
 
@@ -183,64 +195,44 @@
 
         </div>
 
+        <p class="text-center text-sm text-slate-500 mt-4">
+            New patient?
+            <a href="register.jsp" class="text-emerald-600 font-semibold hover:underline">Register here</a>
+        </p>
+
     </div>
 
 </div>
-</body>
+
 <script>
+    const roleInput = document.getElementById("role");
+    const roleButtons = document.querySelectorAll(".role-btn");
 
-    let currentRole = "Doctor";
-
-    const roleInput = document.createElement("input");
-    roleInput.type = "hidden";
-    roleInput.name = "role";
-    roleInput.id = "role";
-    roleInput.value = currentRole;
-
-    document.getElementById("loginForm").appendChild(roleInput);
-
-    const buttons = document.querySelectorAll(".role-btn");
-
-    buttons.forEach(button => {
-
+    roleButtons.forEach(button => {
         button.addEventListener("click", function () {
-
-            buttons.forEach(btn => {
-
-                btn.classList.remove("bg-emerald-500", "text-white");
+            roleButtons.forEach(btn => {
+                btn.classList.remove("bg-emerald-500", "text-white", "font-semibold");
                 btn.classList.add("text-slate-600");
-
             });
 
             this.classList.remove("text-slate-600");
-            this.classList.add("bg-emerald-500", "text-white");
-
-            currentRole = this.innerText.trim();
-
-            roleInput.value = currentRole;
-
+            this.classList.add("bg-emerald-500", "text-white", "font-semibold");
+            roleInput.value = this.dataset.role;
         });
-
     });
 
     function showPassword() {
-
         const password = document.getElementById("password");
         const slash = document.getElementById("slash");
 
         if (password.type === "password") {
-
             password.type = "text";
             slash.style.display = "none";
-
         } else {
-
             password.type = "password";
             slash.style.display = "block";
-
         }
-
     }
-
 </script>
+</body>
 </html>

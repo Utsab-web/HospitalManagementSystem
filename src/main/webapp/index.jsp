@@ -37,28 +37,13 @@
 
           <button id="button1" type="button"
                   class="cursor-pointer w-fit text-lg md:text-xl font-bold bg-emerald-500 text-white px-5 py-2 rounded-xl shadow-md active:scale-95 transition"
-                  onclick="
-                const btn=document.getElementById('button1');
-                if(btn.classList.contains('bg-emerald-500')){
-                    btn.classList.replace('bg-emerald-500','bg-emerald-300');
-                }
-                else{
-                    btn.classList.replace('bg-emerald-300','bg-emerald-500');
-                }">
+                  onclick="flashButton('button1', 'bg-emerald-500', 'bg-emerald-300', gotoRegister);">
             New Arrival(Sign Up)
           </button>
 
-          <button  id="button2" type="button"
-                   class="cursor-pointer w-fit text-lg md:text-xl font-bold bg-teal-500 text-white px-5 py-2 rounded-xl shadow-md active:scale-95 transition"
-                   onclick="
-                        gotoLogin();
-                const btn=document.getElementById('button2');
-                if(btn.classList.contains('bg-teal-500')){
-                    btn.classList.replace('bg-teal-500','bg-teal-300');
-                }
-                else{
-                    btn.classList.replace('bg-teal-300','bg-teal-500');
-                }">
+          <button id="button2" type="button"
+                  class="cursor-pointer w-fit text-lg md:text-xl font-bold bg-teal-500 text-white px-5 py-2 rounded-xl shadow-md active:scale-95 transition"
+                  onclick="flashButton('button2', 'bg-teal-500', 'bg-teal-300', gotoLogin);">
             Login
           </button>
 
@@ -78,11 +63,24 @@
   </div>
 
   <script>
-    function gotoLogin(){
+    function flashButton(id, originalClass, flashClass, callback) {
+      const btn = document.getElementById(id);
+      btn.classList.remove(originalClass);
+      btn.classList.add(flashClass);
 
       setTimeout(() => {
-        window.location.href = "Pages/login.jsp";
-      }, 500);
+        btn.classList.remove(flashClass);
+        btn.classList.add(originalClass);
+        if (callback) callback();
+      }, 300);
+    }
+
+    function gotoRegister() {
+      window.location.href = "Pages/register.jsp";
+    }
+
+    function gotoLogin() {
+      window.location.href = "Pages/login.jsp";
     }
   </script>
   </body>

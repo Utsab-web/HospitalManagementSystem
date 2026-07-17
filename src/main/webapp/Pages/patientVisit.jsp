@@ -1,4 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%
+    String userRole = (String) session.getAttribute("role");
+    if (userRole == null) userRole = request.getParameter("role");
+    if (userRole == null) userRole = "";
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,403 +13,398 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bharatpur Hospital · EMR</title>
     <link rel="stylesheet" href="../css/output.css">
-    <style>
-        /* A4 sheet sizing */
-        #a4Sheet {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 18mm 16mm;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            #a4Sheet, #a4Sheet * { visibility: visible; }
-            #a4Sheet {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 210mm;
-                min-height: 297mm;
-                margin: 0;
-                box-shadow: none;
-                border: none;
-            }
-            #printOverlay { position: static; background: none; padding: 0; }
-            .no-print { display: none !important; }
-        }
-    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
 
-<!-- Top bar -->
-<div class="border-b border-slate-200 bg-white no-print">
-    <div class="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">B</div>
+<body class="min-h-screen bg-linear-to-br from-cyan-50 to-emerald-100 py-8 px-4">
+<div class="max-w-5xl mx-auto bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden">
+
+    <header class="bg-linear-to-r from-emerald-700 to-teal-600 text-white px-6 md:px-8 py-5">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
-                <h1 class="text-sm font-semibold text-slate-900 leading-tight">Bharatpur Hospital</h1>
-                <p class="text-xs text-slate-400 leading-tight">Electronic Medical Record</p>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">BHARATPUR HOSPITAL</h1>
+                <p class="text-emerald-50 text-sm md:text-base mt-1">Electronic Medical Record</p>
+            </div>
+            <div class="text-sm md:text-base space-y-1 md:text-right">
+                <p>
+                    <span class="text-emerald-100">Visit Number :</span>
+                    <span id="visitNumber" class="font-semibold text-white">XX</span>
+                </p>
+                <p>
+                    <span class="text-emerald-100">Date :</span>
+                    <span id="visitDate" class="font-semibold text-white">XX</span>
+                </p>
             </div>
         </div>
-        <div class="text-right text-xs text-slate-500">
-            <p>Visit No. <span class="text-slate-900 font-medium" id="visitNoDisplay"><%= request.getAttribute("visitNumber") == null ? "—" : request.getAttribute("visitNumber") %></span></p>
-            <p id="visitDateDisplay"><%= new java.text.SimpleDateFormat("dd MMM yyyy").format(new java.util.Date()) %></p>
-        </div>
-    </div>
-</div>
+    </header>
 
-<form id="emrForm" action="saveRecord.jsp" method="post" class="max-w-3xl mx-auto px-6 py-8 space-y-6 no-print">
+    <form id="emrForm" action="#" method="post">
 
-    <!-- Patient -->
-    <section>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Patient name</label>
-                <input type="text" name="patientName" id="patientName" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+        <input type="hidden" name="visitId" id="visitId">
+        <input type="hidden" name="visitNumber" id="visitNumberInput">
+        <input type="hidden" name="userRole" id="userRole" value="<%= userRole %>">
+        <input type="hidden" name="labTestRequired" id="labTestRequired" value="false">
+
+        <!-- 1. Patient Registration -->
+        <section class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-emerald-500 px-5 py-3 flex items-center justify-between">
+                <h2 class="text-white text-lg font-semibold">Patient Registration</h2>
+                <div class="flex items-center gap-2">
+                    <label for="language" class="text-sm font-medium text-white">Language</label>
+                    <select id="language" name="language"
+                            class="rounded-lg border border-emerald-300 bg-white px-2 py-1 text-sm outline-none">
+                        <option value="English">English</option>
+                        <option value="Nepali">Nepali</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Contact number</label>
-                <input type="tel" name="contactNumber" id="contactNumber" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+
+            <div class="grid grid-cols-2 gap-4 p-5">
+                <div>
+                    <label for="patientName" class="mb-1 block text-sm font-semibold text-slate-700">Patient Name</label>
+                    <input id="patientName" name="patientName" placeholder="Enter name"
+                           class="w-full rounded-xl border-2 border-emerald-300 px-3 py-2 outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label for="contactNumber" class="mb-1 block text-sm font-semibold text-slate-700">Contact Number</label>
+                    <input id="contactNumber" name="contactNumber" type="tel" placeholder="Enter contact number"
+                           class="w-full rounded-xl border-2 border-emerald-300 px-3 py-2 outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="col-span-2">
+                    <label for="symptoms" class="mb-1 block text-sm font-semibold text-slate-700">Symptoms</label>
+                    <textarea id="symptoms" name="symptoms" rows="3"
+                              placeholder="Describe symptoms..."
+                              class="w-full resize-y rounded-xl border-2 border-emerald-300 px-3 py-2 outline-none focus:border-emerald-500"></textarea>
+                </div>
+
+                <div class="col-span-2 flex justify-end">
+                    <button type="submit"
+                            class="rounded-xl bg-emerald-500 px-6 py-2 font-semibold text-white hover:bg-emerald-600 active:scale-95">
+                        Submit Registration
+                    </button>
+                </div>
             </div>
-            <div class="sm:col-span-2">
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Symptoms</label>
-                <textarea name="symptoms" id="symptoms" rows="2" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"></textarea>
+        </section>
+
+        <!-- 2. Reception -->
+        <div class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden mt-5">
+            <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b border-emerald-200 px-5 py-3">
+                <h2 class="text-xl font-bold text-emerald-700">Reception</h2>
+                <p class="text-sm text-emerald-600">Department Assignment & Queue Management</p>
             </div>
-        </div>
-    </section>
 
-    <!-- 01 Reception -->
-    <section class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-semibold text-blue-600 tabular-nums">01</span>
-            <h2 class="text-sm font-semibold text-slate-900">Reception</h2>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Department</label>
-                <select name="department" id="department" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-                    <option value="">Select department</option>
-                    <option>General Medicine</option>
-                    <option>Pediatrics</option>
-                    <option>Orthopedics</option>
-                    <option>Gynecology</option>
-                    <option>ENT</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Doctor</label>
-                <input type="text" name="doctor" id="doctor" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Estimated waiting time</label>
-                <input type="text" name="waitTime" id="waitTime" placeholder="e.g. 15 min" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-            </div>
-            <div class="flex items-end">
-          <span class="inline-flex items-center gap-1.5 rounded-md bg-green-50 text-green-700 text-xs font-medium px-2.5 py-1.5 border border-green-100">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Consultation paid
-          </span>
-            </div>
-        </div>
-    </section>
-
-    <!-- 02 Diagnosis -->
-    <section class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-semibold text-blue-600 tabular-nums">02</span>
-            <h2 class="text-sm font-semibold text-slate-900">Doctor Consultation · Diagnosis</h2>
-        </div>
-        <textarea name="diagnosis" id="diagnosis" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"></textarea>
-    </section>
-
-    <!-- 03 Lab tests -->
-    <section class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-blue-600 tabular-nums">03</span>
-                <h2 class="text-sm font-semibold text-slate-900">Laboratory Tests</h2>
-            </div>
-            <span class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-1.5 border border-amber-100">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Payment pending
-        </span>
-        </div>
-
-        <label class="block text-xs font-medium text-slate-500 mb-1.5">Requested tests</label>
-        <div id="labTests" class="space-y-2 mb-2">
-            <input type="text" name="labTest[]" placeholder="Test name" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-        </div>
-        <button type="button" onclick="addRow('labTests','labTest[]','Test name')" class="text-xs font-medium text-blue-600 hover:text-blue-700">+ Add test</button>
-
-        <div class="mt-4 pt-4 border-t border-slate-100">
-            <label class="block text-xs font-medium text-slate-500 mb-1.5">Results</label>
-            <textarea name="labResults" id="labResults" rows="2" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"></textarea>
-        </div>
-    </section>
-
-    <!-- 04 Prescription -->
-    <section class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-semibold text-blue-600 tabular-nums">04</span>
-            <h2 class="text-sm font-semibold text-slate-900">Prescription</h2>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 mb-1.5">
-            <span class="text-xs font-medium text-slate-500">Medicine</span>
-            <span class="text-xs font-medium text-slate-500">Dose</span>
-            <span class="text-xs font-medium text-slate-500">Days</span>
-        </div>
-        <div id="rxRows" class="space-y-2">
-            <div class="grid grid-cols-3 gap-2">
-                <input type="text" name="rxMedicine[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-                <input type="text" name="rxDose[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-                <input type="number" name="rxDays[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-            </div>
-        </div>
-        <button type="button" onclick="addRxRow()" class="mt-2 text-xs font-medium text-blue-600 hover:text-blue-700">+ Add medicine</button>
-    </section>
-
-    <!-- 05 Pharmacy -->
-    <section class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-semibold text-blue-600 tabular-nums">05</span>
-            <h2 class="text-sm font-semibold text-slate-900">Pharmacy</h2>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Total medicine cost</label>
-                <input type="number" name="medicineCost" id="medicineCost" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Payment status</label>
-                <select name="medicinePaymentStatus" id="medicinePaymentStatus" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-                    <option>Pending</option>
-                    <option>Paid</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1.5">Dispensed</label>
-                <select name="dispensed" id="dispensed" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-                    <option>No</option>
-                    <option>Yes</option>
-                </select>
-            </div>
-        </div>
-    </section>
-
-    <!-- Actions -->
-    <div class="flex justify-end gap-3 pt-2">
-        <button type="reset" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700">Reset</button>
-        <button type="button" onclick="showSummary()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Save record</button>
-    </div>
-</form>
-
-<!-- Print / preview overlay -->
-<div id="printOverlay" class="hidden fixed inset-0 bg-slate-900/60 z-50 overflow-y-auto py-10">
-    <div class="max-w-fit mx-auto">
-
-        <!-- Toolbar -->
-        <div class="no-print flex justify-end gap-2 mb-4 max-w-[210mm] mx-auto">
-            <button onclick="closeSummary()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white rounded-md border border-slate-300 hover:bg-slate-50">Close</button>
-            <button onclick="window.print()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Print</button>
-        </div>
-
-        <!-- A4 sheet -->
-        <div id="a4Sheet" class="bg-white shadow-xl mx-auto text-slate-900" style="font-size: 12px;">
-
-            <!-- Letterhead -->
-            <div class="flex items-center justify-between border-b-2 border-blue-600 pb-4 mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-md bg-blue-600 flex items-center justify-center text-white text-base font-semibold">B</div>
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <h1 class="text-base font-bold text-slate-900 leading-tight">Bharatpur Hospital</h1>
-                        <p class="text-xs text-slate-500 leading-tight">Electronic Medical Record — Visit Summary</p>
+                        <label for="visitNumberInputBox" class="block text-slate-700 font-semibold mb-2">Patient Visit Number</label>
+                        <input id="visitNumberInputBox" readonly placeholder="Generated Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="visitDateInput" class="block text-slate-700 font-semibold mb-2">Visit Date</label>
+                        <input id="visitDateInput" type="date" readonly placeholder="Loaded Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="department" class="block text-slate-700 font-semibold mb-2">Department</label>
+                        <select id="department"
+                                class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                            <option selected disabled>Select Department</option>
+                            <option>General Medicine</option>
+                            <option>ENT</option>
+                            <option>Orthopedics</option>
+                            <option>Pediatrics</option>
+                            <option>Gynecology</option>
+                            <option>Dermatology</option>
+                            <option>Ophthalmology</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="doctorName" class="block text-slate-700 font-semibold mb-2">Assigned Doctor</label>
+                        <input id="doctorName" readonly placeholder="Assigned Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="patientsAhead" class="block text-slate-700 font-semibold mb-2">Patients Ahead</label>
+                        <input id="patientsAhead" readonly placeholder="Calculated Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="waitingTime" class="block text-slate-700 font-semibold mb-2">Estimated Waiting Time</label>
+                        <input id="waitingTime" readonly placeholder="Calculated Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div class="col-span-2 flex justify-end">
+                        <button type="button"
+                                class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl">
+                            Send to Doctor Queue
+                        </button>
                     </div>
                 </div>
-                <div class="text-right text-xs text-slate-500">
-                    <p>Visit No. <span id="s_visitNo" class="font-semibold text-slate-900">—</span></p>
-                    <p id="s_date" class="mt-0.5"></p>
-                </div>
             </div>
-
-            <!-- Patient -->
-            <div class="grid grid-cols-3 gap-4 mb-5 text-sm">
-                <div><span class="block text-xs text-slate-500">Patient name</span><span id="s_patientName" class="font-medium">—</span></div>
-                <div><span class="block text-xs text-slate-500">Contact number</span><span id="s_contactNumber" class="font-medium">—</span></div>
-                <div class="col-span-3"><span class="block text-xs text-slate-500">Symptoms</span><span id="s_symptoms" class="font-medium">—</span></div>
-            </div>
-
-            <!-- Reception -->
-            <div class="mb-5">
-                <h2 class="text-xs font-bold uppercase tracking-wide text-blue-700 border-b border-slate-200 pb-1 mb-2">01 · Reception</h2>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                    <div><span class="block text-xs text-slate-500">Department</span><span id="s_department" class="font-medium">—</span></div>
-                    <div><span class="block text-xs text-slate-500">Doctor</span><span id="s_doctor" class="font-medium">—</span></div>
-                    <div><span class="block text-xs text-slate-500">Est. waiting time</span><span id="s_waitTime" class="font-medium">—</span></div>
-                </div>
-                <p class="mt-2 inline-block text-xs font-medium text-green-700">✓ Consultation payment: Paid</p>
-            </div>
-
-            <!-- Diagnosis -->
-            <div class="mb-5">
-                <h2 class="text-xs font-bold uppercase tracking-wide text-blue-700 border-b border-slate-200 pb-1 mb-2">02 · Diagnosis</h2>
-                <p id="s_diagnosis" class="text-sm whitespace-pre-wrap">—</p>
-            </div>
-
-            <!-- Lab tests -->
-            <div class="mb-5">
-                <h2 class="text-xs font-bold uppercase tracking-wide text-blue-700 border-b border-slate-200 pb-1 mb-2">03 · Laboratory Tests</h2>
-                <div class="text-sm mb-2">
-                    <span class="block text-xs text-slate-500 mb-1">Requested tests</span>
-                    <ul id="s_labTests" class="list-disc list-inside space-y-0.5"></ul>
-                </div>
-                <div class="text-sm">
-                    <span class="block text-xs text-slate-500">Results</span>
-                    <span id="s_labResults" class="font-medium">—</span>
-                </div>
-                <p class="mt-2 text-xs font-medium text-amber-700">● Laboratory payment: Pending</p>
-            </div>
-
-            <!-- Prescription -->
-            <div class="mb-5">
-                <h2 class="text-xs font-bold uppercase tracking-wide text-blue-700 border-b border-slate-200 pb-1 mb-2">04 · Prescription</h2>
-                <table class="w-full text-sm border-collapse">
-                    <thead>
-                    <tr class="text-xs text-slate-500 text-left">
-                        <th class="border-b border-slate-200 py-1 font-medium">Medicine</th>
-                        <th class="border-b border-slate-200 py-1 font-medium">Dose</th>
-                        <th class="border-b border-slate-200 py-1 font-medium">Days</th>
-                    </tr>
-                    </thead>
-                    <tbody id="s_rxTable"></tbody>
-                </table>
-            </div>
-
-            <!-- Pharmacy -->
-            <div class="mb-8">
-                <h2 class="text-xs font-bold uppercase tracking-wide text-blue-700 border-b border-slate-200 pb-1 mb-2">05 · Pharmacy</h2>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                    <div><span class="block text-xs text-slate-500">Total medicine cost</span><span id="s_medicineCost" class="font-medium">—</span></div>
-                    <div><span class="block text-xs text-slate-500">Payment status</span><span id="s_medicinePaymentStatus" class="font-medium">—</span></div>
-                    <div><span class="block text-xs text-slate-500">Dispensed</span><span id="s_dispensed" class="font-medium">—</span></div>
-                </div>
-            </div>
-
-            <!-- Signatures -->
-            <div class="grid grid-cols-2 gap-8 mt-16 text-sm">
-                <div class="border-t border-slate-400 pt-1 text-xs text-slate-500">Doctor's signature</div>
-                <div class="border-t border-slate-400 pt-1 text-xs text-slate-500">Pharmacist's signature</div>
-            </div>
-
-            <p class="mt-10 text-[10px] text-slate-400 text-center">This is a system-generated record from Bharatpur Hospital EMR.</p>
         </div>
-    </div>
+
+        <!-- 3. Doctor Consultation -->
+        <div class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden mt-5">
+            <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b border-emerald-200 px-5 py-3">
+                <h2 class="text-xl font-bold text-emerald-700">Doctor Consultation</h2>
+                <p class="text-sm text-emerald-600">Diagnosis, Investigation & Treatment</p>
+            </div>
+
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="doctorVisitNumber" class="block text-slate-700 font-semibold mb-2">Patient Visit Number</label>
+                        <input id="doctorVisitNumber" readonly placeholder="Loaded Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="doctorPatientsAhead" class="block text-slate-700 font-semibold mb-2">Patients Ahead</label>
+                        <input id="doctorPatientsAhead" readonly placeholder="Calculated Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="doctorEstWait" class="block text-slate-700 font-semibold mb-2">Estimated Waiting Time</label>
+                        <input id="doctorEstWait" readonly placeholder="Calculated Automatically"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="diagnosis" class="block text-slate-700 font-semibold mb-2">Diagnosis</label>
+                        <textarea id="diagnosis" rows="3" placeholder="Enter diagnosis..."
+                                  class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none"></textarea>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="clinicalNotes" class="block text-slate-700 font-semibold mb-2">Clinical Notes</label>
+                        <textarea id="clinicalNotes" rows="4" placeholder="Enter clinical notes..."
+                                  class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="labTest" class="block text-slate-700 font-semibold mb-2">Laboratory Test</label>
+                        <textarea id="labTest" rows="2" placeholder="Enter requested test..."
+                                  class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="followUp" class="block text-slate-700 font-semibold mb-2">Follow-up Date</label>
+                        <input id="followUp" type="date" placeholder="Select date"
+                               class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <!-- Prescription (entered by Doctor) -->
+                    <div class="col-span-2">
+                        <label class="block text-slate-700 font-semibold mb-2">Prescription</label>
+
+                        <div class="border border-emerald-300 rounded-xl overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-emerald-50">
+                                <tr>
+                                    <th class="p-3 text-left">Medicine Name</th>
+                                    <th class="p-3 text-left">Dose</th>
+                                    <th class="p-3 text-center">Morning</th>
+                                    <th class="p-3 text-center">Afternoon</th>
+                                    <th class="p-3 text-center">Evening</th>
+                                    <th class="p-3 text-center">Days</th>
+                                    <th class="p-3 text-center">Remove</th>
+                                </tr>
+                                </thead>
+                                <tbody id="medicineBody">
+                                <tr id="noMedicineRow" class="border-t border-emerald-200">
+                                    <td colspan="7" class="p-5 text-center text-slate-400">
+                                        No medicine added
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="bg-emerald-50 border-t border-emerald-200 px-3 py-2 flex justify-end">
+                                <button type="button"
+                                        id="addMedicineBtn"
+                                        class="text-sm font-semibold text-emerald-700 border-2 border-emerald-300 rounded-lg px-3 py-1.5 bg-white hover:bg-emerald-100">
+                                    + Add Medicine
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2 flex justify-end gap-3">
+                        <button type="button"
+                                id="sendToLabBtn"
+                                class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl">
+                            Send to Lab
+                        </button>
+                        <button type="button"
+                                id="sendToPharmacyBtn"
+                                class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl">
+                            Send to Pharmacy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Laboratory -->
+        <section id="section-lab" data-access-role="lab"
+                 class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden mt-5">
+            <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b border-emerald-200 px-5 py-3 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-700">Laboratory</h2>
+                    <p class="text-sm text-emerald-600">Investigation & Result Management</p>
+                </div>
+                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800">Lab</span>
+            </div>
+
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="labVisitNumber" class="block text-sm font-semibold text-slate-700 mb-2">Patient Visit Number</label>
+                        <input id="labVisitNumber" readonly placeholder="Loaded Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="labTestDisplay" class="block text-sm font-semibold text-slate-700 mb-2">Requested Test</label>
+                        <input id="labTestDisplay" readonly placeholder="Waiting for Doctor Request"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="labPatientsAhead" class="block text-sm font-semibold text-slate-700 mb-2">Patients Ahead</label>
+                        <input id="labPatientsAhead" readonly placeholder="Calculated Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="labEstWait" class="block text-sm font-semibold text-slate-700 mb-2">Estimated Waiting Time</label>
+                        <input id="labEstWait" readonly placeholder="Calculated Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="labResultBox" class="block text-sm font-semibold text-slate-700 mb-2">Laboratory Result</label>
+                        <textarea id="labResultBox" name="labResultText" rows="4"
+                                  placeholder="Enter laboratory result"
+                                  class="w-full border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none resize-y"></textarea>
+                    </div>
+
+                    <div class="col-span-2 flex justify-end gap-3">
+                        <button type="button"
+                                class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl">
+                            Mark Completed
+                        </button>
+                        <button type="button"
+                                class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl">
+                            Send Result
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Pharmacy -->
+        <section id="section-pharmacy" data-access-role="pharmacy"
+                 class="bg-white border border-emerald-200 rounded-2xl shadow-xl overflow-hidden mt-5">
+            <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 border-b border-emerald-200 px-5 py-3 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-700">Pharmacy</h2>
+                    <p class="text-sm text-emerald-600">Prescription Dispensing</p>
+                </div>
+                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800">Pharmacy</span>
+            </div>
+
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-4 mb-5">
+                    <div>
+                        <label for="pharmacyVisitNumber" class="block text-sm font-semibold text-slate-700 mb-2">Patient Visit Number</label>
+                        <input id="pharmacyVisitNumber" readonly placeholder="Loaded Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="pharmacyPatientsAhead" class="block text-sm font-semibold text-slate-700 mb-2">Patients Ahead</label>
+                        <input id="pharmacyPatientsAhead" readonly placeholder="Calculated Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+
+                    <div>
+                        <label for="pharmacyEstWait" class="block text-sm font-semibold text-slate-700 mb-2">Estimated Waiting Time</label>
+                        <input id="pharmacyEstWait" readonly placeholder="Calculated Automatically"
+                               class="w-full bg-slate-50 border-2 border-emerald-300 rounded-xl px-4 py-3 outline-none">
+                    </div>
+                </div>
+
+                <p class="block text-sm font-semibold text-slate-700 mb-2">Prescribed Medicines (from Doctor)</p>
+
+                <div class="border border-emerald-300 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-emerald-50">
+                        <tr>
+                            <th class="p-3 text-left">Medicine</th>
+                            <th class="p-3 text-left">Dose</th>
+                            <th class="p-3 text-center">Schedule</th>
+                            <th class="p-3 text-center">Days</th>
+                            <th class="p-3 text-center">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="pharmacyMedicineBody">
+                        <tr class="border-t border-emerald-200">
+                            <td colspan="5" class="p-5 text-center text-slate-400">
+                                No prescription available
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-5 flex justify-between items-center border-t border-emerald-100 pt-4">
+                    <div>
+                        <span class="text-sm font-semibold text-slate-700">Total:</span>
+                        <span class="font-bold text-emerald-700">NPR <span id="pharmacyTotalCost">0</span></span>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            <input type="checkbox" id="medicinePayment" class="w-4 h-4">
+                            Paid
+                        </label>
+                        <button type="button"
+                                id="dispenseMedicineBtn"
+                                class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-5 py-2 rounded-xl">
+                            Dispense
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Save -->
+        <div class="px-6 py-5 bg-slate-50 border-t border-emerald-100 flex justify-end gap-3">
+            <button type="button"
+                    id="refreshStatusBtn"
+                    class="border-2 border-emerald-300 text-emerald-700 font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-50 transition">
+                Refresh Status
+            </button>
+            <button type="submit"
+                    id="saveBtn"
+                    class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition text-white font-bold px-6 py-2.5 rounded-xl shadow-md">
+                Save
+            </button>
+        </div>
+
+    </form>
 </div>
 
-<script>
-    function addRow(containerId, name, placeholder) {
-        const c = document.getElementById(containerId);
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.name = name;
-        input.placeholder = placeholder;
-        input.className = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500';
-        c.appendChild(input);
-    }
-
-    function addRxRow() {
-        const c = document.getElementById('rxRows');
-        const row = document.createElement('div');
-        row.className = 'grid grid-cols-3 gap-2';
-        row.innerHTML = `
-        <input type="text" name="rxMedicine[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-        <input type="text" name="rxDose[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-        <input type="number" name="rxDays[]" class="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
-      `;
-        c.appendChild(row);
-    }
-
-    function val(id) {
-        const el = document.getElementById(id);
-        if (!el) return '';
-        return el.value ? el.value.trim() : '';
-    }
-
-    function fill(id, text, fallback) {
-        document.getElementById(id).textContent = (text && text.length) ? text : (fallback || '—');
-    }
-
-    function showSummary() {
-        // Header
-        fill('s_visitNo', document.getElementById('visitNoDisplay').textContent);
-        document.getElementById('s_date').textContent = document.getElementById('visitDateDisplay').textContent;
-
-        // Patient
-        fill('s_patientName', val('patientName'));
-        fill('s_contactNumber', val('contactNumber'));
-        fill('s_symptoms', val('symptoms'));
-
-        // Reception
-        fill('s_department', val('department'));
-        fill('s_doctor', val('doctor'));
-        fill('s_waitTime', val('waitTime'));
-
-        // Diagnosis
-        fill('s_diagnosis', val('diagnosis'));
-
-        // Lab tests
-        const labTestInputs = document.querySelectorAll('input[name="labTest[]"]');
-        const labList = document.getElementById('s_labTests');
-        labList.innerHTML = '';
-        let hasTest = false;
-        labTestInputs.forEach(inp => {
-            if (inp.value.trim()) {
-                hasTest = true;
-                const li = document.createElement('li');
-                li.textContent = inp.value.trim();
-                labList.appendChild(li);
-            }
-        });
-        if (!hasTest) {
-            const li = document.createElement('li');
-            li.textContent = 'No tests requested';
-            li.className = 'text-slate-400 list-none -ml-5';
-            labList.appendChild(li);
-        }
-        fill('s_labResults', val('labResults'));
-
-        // Prescription
-        const meds = document.querySelectorAll('input[name="rxMedicine[]"]');
-        const doses = document.querySelectorAll('input[name="rxDose[]"]');
-        const days = document.querySelectorAll('input[name="rxDays[]"]');
-        const rxTable = document.getElementById('s_rxTable');
-        rxTable.innerHTML = '';
-        let hasRx = false;
-        meds.forEach((m, i) => {
-            if (m.value.trim()) {
-                hasRx = true;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-            <td class="border-b border-slate-100 py-1">${m.value.trim()}</td>
-            <td class="border-b border-slate-100 py-1">${(doses[i] && doses[i].value.trim()) || '—'}</td>
-            <td class="border-b border-slate-100 py-1">${(days[i] && days[i].value.trim()) || '—'}</td>
-          `;
-                rxTable.appendChild(tr);
-            }
-        });
-        if (!hasRx) {
-            rxTable.innerHTML = '<tr><td colspan="3" class="py-1 text-slate-400">No medicines prescribed</td></tr>';
-        }
-
-        // Pharmacy
-        const cost = val('medicineCost');
-        fill('s_medicineCost', cost ? ('Rs. ' + cost) : '', '—');
-        fill('s_medicinePaymentStatus', val('medicinePaymentStatus'));
-        fill('s_dispensed', val('dispensed'));
-
-        document.getElementById('printOverlay').classList.remove('hidden');
-    }
-
-    function closeSummary() {
-        document.getElementById('printOverlay').classList.add('hidden');
-    }
-</script>
+<script src="../js/patientVisit.js"></script>
 </body>
 </html>
