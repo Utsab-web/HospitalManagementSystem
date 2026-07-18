@@ -1,11 +1,6 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: ADMIN
-  Date: 7/17/2026
-  Time: 11:53 PM
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,207 +8,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Patient Registration</title>
 
-    <link rel="stylesheet" href="../css/Style.css">
-
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, Helvetica, sans-serif;
-        }
-
-        body{
-            background:#EAFBF5;
-            padding:40px;
-        }
-
-        .container{
-            max-width:1100px;
-            margin:auto;
-        }
-
-        h1{
-            color:#0B5E4B;
-            margin-bottom:25px;
-        }
-
-        .card{
-            background:white;
-            border-radius:15px;
-            box-shadow:0 8px 20px rgba(0,0,0,.12);
-            padding:30px;
-        }
-
-        .grid{
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:25px;
-        }
-
-        h3{
-            color:#0B5E4B;
-            margin-bottom:15px;
-        }
-
-        .form-group{
-            margin-bottom:15px;
-        }
-
-        label{
-            display:block;
-            margin-bottom:6px;
-            font-weight:bold;
-        }
-
-        input,
-        select,
-        textarea{
-            width:100%;
-            padding:12px;
-            border:1px solid #ccc;
-            border-radius:8px;
-            font-size:15px;
-        }
-
-        textarea{
-            resize:none;
-        }
-
-        .btn{
-            margin-top:30px;
-            text-align:center;
-        }
-
-        button{
-            background:#12B76A;
-            color:white;
-            border:none;
-            padding:14px 45px;
-            border-radius:8px;
-            font-size:18px;
-            cursor:pointer;
-        }
-
-        button:hover{
-            background:#0F9B5C;
-        }
-
-        @media(max-width:800px){
-
-            .grid{
-                grid-template-columns:1fr;
-            }
-
-        }
-
-    </style>
-
+    <link rel="stylesheet" href="../css/output.css">
 </head>
 
-<body>
+<body class="bg-emerald-50 p-10">
 
-<div class="container">
+<div class="max-w-[1100px] mx-auto">
 
-    <h1>New Patient Registration</h1>
+    <h1 class="text-emerald-800 text-3xl font-bold mb-6">New Patient Registration</h1>
 
-    <div class="card">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
 
-        <form onsubmit="return registerPatient(event)">
+        <c:if test="${not empty errorMessage}">
+            <div class="mb-6 p-3 border border-red-300 bg-red-100 text-red-700 rounded-lg text-sm">
+                    ${errorMessage}
+            </div>
+        </c:if>
 
-            <div class="grid">
+        <form action="${pageContext.request.contextPath}/registerPatient" method="post">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 <div>
 
-                    <h3>Personal Information</h3>
+                    <h3 class="text-emerald-800 text-lg font-semibold mb-4">Personal Information</h3>
 
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">First Name</label>
+                        <input type="text" name="firstName" required
+                               value="${fn:escapeXml(param.firstName)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Last Name</label>
+                        <input type="text" name="lastName" required
+                               value="${fn:escapeXml(param.lastName)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Date of Birth</label>
-                        <input type="date">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Date of Birth</label>
+                        <input type="date" name="dateOfBirth" required
+                               value="${param.dateOfBirth}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Gender</label>
-
-                        <select>
-                            <option>Select Gender</option>
-                            <option>Male</option>
-                            <option>Female</option>
-                            <option>Other</option>
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Gender</label>
+                        <select name="gender" required
+                                class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="" disabled ${empty param.gender ? 'selected' : ''}>Select Gender</option>
+                            <option value="Male" ${param.gender == 'Male' ? 'selected' : ''}>Male</option>
+                            <option value="Female" ${param.gender == 'Female' ? 'selected' : ''}>Female</option>
+                            <option value="Other" ${param.gender == 'Other' ? 'selected' : ''}>Other</option>
                         </select>
-
                     </div>
 
-                    <div class="form-group">
-                        <label>Blood Group</label>
-
-                        <select>
-                            <option>Select Blood Group</option>
-                            <option>A+</option>
-                            <option>A-</option>
-                            <option>B+</option>
-                            <option>B-</option>
-                            <option>AB+</option>
-                            <option>AB-</option>
-                            <option>O+</option>
-                            <option>O-</option>
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Blood Group</label>
+                        <select name="bloodGroup"
+                                class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="" disabled ${empty param.bloodGroup ? 'selected' : ''}>Select Blood Group</option>
+                            <option value="A+"  ${param.bloodGroup == 'A+'  ? 'selected' : ''}>A+</option>
+                            <option value="A-"  ${param.bloodGroup == 'A-'  ? 'selected' : ''}>A-</option>
+                            <option value="B+"  ${param.bloodGroup == 'B+'  ? 'selected' : ''}>B+</option>
+                            <option value="B-"  ${param.bloodGroup == 'B-'  ? 'selected' : ''}>B-</option>
+                            <option value="AB+" ${param.bloodGroup == 'AB+' ? 'selected' : ''}>AB+</option>
+                            <option value="AB-" ${param.bloodGroup == 'AB-' ? 'selected' : ''}>AB-</option>
+                            <option value="O+"  ${param.bloodGroup == 'O+'  ? 'selected' : ''}>O+</option>
+                            <option value="O-"  ${param.bloodGroup == 'O-'  ? 'selected' : ''}>O-</option>
                         </select>
-
                     </div>
 
                 </div>
 
                 <div>
 
-                    <h3>Contact & Account</h3>
+                    <h3 class="text-emerald-800 text-lg font-semibold mb-4">Contact &amp; Account</h3>
 
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="text">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Phone Number</label>
+                        <input type="text" name="phoneNumber" required
+                               value="${fn:escapeXml(param.phoneNumber)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Email</label>
+                        <input type="email" name="email" required
+                               value="${fn:escapeXml(param.email)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Address</label>
-                        <textarea rows="3"></textarea>
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Address</label>
+                        <textarea rows="3" name="address"
+                                  class="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500">${fn:escapeXml(param.address)}</textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Emergency Contact Number</label>
-                        <input type="text">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Emergency Contact Number</label>
+                        <input type="text" name="emergencyContactNumber"
+                               value="${fn:escapeXml(param.emergencyContactNumber)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Username</label>
+                        <input type="text" name="username" required
+                               value="${fn:escapeXml(param.username)}"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password">
+                    <div class="mb-4">
+                        <label class="block mb-1.5 font-bold">Password</label>
+                        <input type="password" name="password" required minlength="6"
+                               class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
 
                 </div>
 
             </div>
 
-            <div class="btn">
-                <button type="submit">Register</button>
+            <div class="mt-8 text-center">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white border-none py-3.5 px-11 rounded-lg text-lg cursor-pointer transition-colors">
+                    Register
+                </button>
             </div>
 
         </form>
@@ -221,23 +142,6 @@
     </div>
 
 </div>
-
-<script>
-
-    function registerPatient(event) {
-
-        event.preventDefault();
-
-        alert("Registration Successful!\n\nRedirecting to Patient Login...");
-
-        setTimeout(function () {
-            window.location.href = "login.jsp?role=patient";
-        }, 1500);
-
-        return false;
-    }
-
-</script>
 
 </body>
 </html>
