@@ -76,7 +76,7 @@
     }
 
     function gotoRegister() {
-      window.location.href = "Pages/register.jsp";
+      window.location.href = "Pages/patientRegistration.jsp";
     }
 
     function gotoLogin() {

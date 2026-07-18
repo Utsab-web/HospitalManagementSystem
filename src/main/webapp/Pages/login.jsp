@@ -197,7 +197,10 @@
 
         <p class="text-center text-sm text-slate-500 mt-4">
             New patient?
-            <a href="register.jsp" class="text-emerald-600 font-semibold hover:underline">Register here</a>
+            <a href="patientRegistration.jsp"
+               class="text-emerald-600 font-semibold hover:underline">
+                Register here
+            </a>
         </p>
 
     </div>
@@ -207,6 +210,26 @@
 <script>
     const roleInput = document.getElementById("role");
     const roleButtons = document.querySelectorAll(".role-btn");
+
+    // Check URL parameter and select the correct role automatically
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedRole = urlParams.get("role");
+
+    if (selectedRole) {
+
+        roleButtons.forEach(btn => {
+            btn.classList.remove("bg-emerald-500", "text-white", "font-semibold");
+            btn.classList.add("text-slate-600");
+
+            if (btn.dataset.role.toLowerCase() === selectedRole.toLowerCase()) {
+                btn.classList.remove("text-slate-600");
+                btn.classList.add("bg-emerald-500", "text-white", "font-semibold");
+
+                roleInput.value = btn.dataset.role;
+            }
+        });
+
+    }
 
     roleButtons.forEach(button => {
         button.addEventListener("click", function () {
