@@ -40,6 +40,7 @@ public class CreateVisitServlet extends HttpServlet {
         int newVisitId = -1;
         try {
             newVisitId = visitDAO.createVisit(patientId, patientName, contactNumber, symptoms);
+            System.out.println("[CreateVisitServlet] createVisit returned id=" + newVisitId + " for patientId=" + patientId + " symptoms='" + symptoms + "'");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -49,6 +50,7 @@ public class CreateVisitServlet extends HttpServlet {
             response.sendRedirect(contextPath + "/Pages/emr.jsp?visitId=" + newVisitId);
         } else {
             // Fallback: go back to dashboard with an error (server logs contain the cause)
+            request.getSession().setAttribute("flashError", "Could not create visit — please try again.");
             response.sendRedirect(contextPath + "/Pages/patient.jsp");
         }
     }

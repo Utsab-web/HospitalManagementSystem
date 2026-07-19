@@ -21,6 +21,8 @@ public class VisitDAO {
                 "consultation_fee, consultation_paid, lab_fee, lab_paid, medicine_paid, medicine_dispensed) " +
                 "VALUES (?, ?, ?, ?, 'en', 'REGISTRATION', CURDATE(), ?, 0, 0, 0, 0, 0)";
 
+        System.out.println("[VisitDAO] createVisit: patientId=" + patientId + ", patientName=" + patientName + ", contactNumber=" + contactNumber + ", symptoms='" + symptoms + "'");
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -30,12 +32,15 @@ public class VisitDAO {
             stmt.setString(4, symptoms);
             stmt.setBigDecimal(5, DEFAULT_CONSULTATION_FEE);
 
+            System.out.println("[VisitDAO] Executing insert: " + insertSql);
             int rows = stmt.executeUpdate();
+            System.out.println("[VisitDAO] Rows inserted: " + rows);
             if (rows == 0) return -1;
 
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (!keys.next()) return -1;
                 int newId = keys.getInt(1);
+                System.out.println("[VisitDAO] New visit id: " + newId);
                 setVisitNumber(conn, newId);
                 stageLogDAO.logTransition(newId, null, "REGISTRATION");
                 return newId;
